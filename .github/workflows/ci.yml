@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  DATABASE_URL: "file:./dev.db"
+  JWT_SECRET: "test_secret_key_for_ci_pipeline"
+
 jobs:
   backend-test:
     name: Backend Build and Integration Test
