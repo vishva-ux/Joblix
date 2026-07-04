@@ -18,7 +18,11 @@ import {
   Info,
   Calendar,
   Layers3,
-  Key
+  Key,
+  Shield,
+  Zap,
+  Repeat,
+  ArrowRight
 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:4000/api';
@@ -31,7 +35,7 @@ export default function App() {
   const [project, setProject] = useState<any>(null);
 
   // Form states
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'landing'>('landing');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -102,6 +106,7 @@ export default function App() {
         setUser(data.user);
         setOrganization(data.organization);
         setProject(data.project);
+        setAuthMode('login'); // reset landing state once logged in
       } else {
         handleLogout();
       }
@@ -206,6 +211,7 @@ export default function App() {
     setUser(null);
     setOrganization(null);
     setProject(null);
+    setAuthMode('landing');
   };
 
   const handleCreateQueue = async (e: React.FormEvent) => {
@@ -337,7 +343,6 @@ export default function App() {
     setSelectedJob(job);
     setAiSummary(null);
     try {
-      // Fetch full details (executions & logs)
       const res = await fetch(`${API_BASE}/jobs/${job.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -345,7 +350,6 @@ export default function App() {
         const detailedJob = await res.json();
         setSelectedJob(detailedJob);
 
-        // Fetch AI debug summary if failed
         if (detailedJob.status === 'FAILED') {
           const aiRes = await fetch(`${API_BASE}/jobs/${job.id}/ai-summary`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -360,7 +364,105 @@ export default function App() {
     }
   };
 
+  // ==========================================
+  // LANDING PAGE & AUTH RENDER (if not logged in)
+  // ==========================================
   if (!token) {
+    if (authMode === 'landing') {
+      return (
+        <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          {/* Header */}
+          <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', borderBottom: '1px solid #e2e8f0', backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="logo-icon" style={{ width: 38, height: 38, fontSize: 18 }}>J</div>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>Joblix</h1>
+            </div>
+            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+              <a href="https://github.com/vishva-ux/Joblix" target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+                <svg style={{ width: 16, height: 16 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg> GitHub
+              </a>
+              <button className="btn btn-secondary" style={{ padding: '8px 16px' }} onClick={() => setAuthMode('login')}>Sign In</button>
+              <button className="btn btn-primary" style={{ padding: '8px 16px' }} onClick={() => setAuthMode('register')}>Get Started</button>
+            </div>
+          </header>
+
+          {/* Hero Section */}
+          <section style={{ padding: '80px 40px', maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: 'rgba(79, 70, 229, 0.06)', border: '1px solid rgba(79, 70, 229, 0.15)', padding: '6px 16px', borderRadius: 99, fontSize: 12, fontWeight: 700, color: 'var(--primary)', marginBottom: 24 }}>
+              <Sparkles size={14} /> Production-Grade Background Processing
+            </div>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 48, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.15, letterSpacing: '-1px', marginBottom: 20 }}>
+              Distributed Job Scheduling <br />
+              <span style={{ background: 'linear-gradient(135deg, var(--primary), var(--info))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>For Modern Web Applications</span>
+            </h2>
+            <p style={{ fontSize: 18, color: 'var(--text-secondary)', maxWidth: 640, margin: '0 auto 32px auto', lineHeight: 1.5 }}>
+              Reliably enqueue immediate, delayed, batch, and recurring cron jobs. Orchestrated with concurrent execution pools, backoffs, and dead letter fallback.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+              <button className="btn btn-primary" style={{ padding: '12px 28px', fontSize: 15 }} onClick={() => setAuthMode('register')}>
+                Deploy Cluster Free <ArrowRight size={16} />
+              </button>
+              <a href="https://github.com/vishva-ux/Joblix" target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ padding: '12px 28px', fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+                View Source Code
+              </a>
+            </div>
+          </section>
+
+          {/* Features Grid */}
+          <section style={{ backgroundColor: 'white', padding: '80px 40px', borderTop: '1px solid #e2e8f0' }}>
+            <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+              <h3 style={{ fontFamily: 'var(--font-display)', textAlign: 'center', fontSize: 28, fontWeight: 700, marginBottom: 48 }}>Engineered For Extreme Concurrency</h3>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 32 }}>
+                <div style={{ border: '1px solid #f1f5f9', padding: 24, borderRadius: 12, backgroundColor: '#f8fafc' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: 'rgba(79, 70, 229, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', marginBottom: 16 }}>
+                    <Shield size={20} />
+                  </div>
+                  <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Atomic Job Claiming</h4>
+                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>Serialized database transactions with compare-and-swap state validations ensure no double execution across worker pods.</p>
+                </div>
+
+                <div style={{ border: '1px solid #f1f5f9', padding: 24, borderRadius: 12, backgroundColor: '#f8fafc' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: 'rgba(16, 185, 129, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--success)', marginBottom: 16 }}>
+                    <Zap size={20} />
+                  </div>
+                  <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Multi-Strategy Retries</h4>
+                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>Configure Linear or Exponential backoffs per queue. Automatically quarantine dead runs to the Dead Letter Queue.</p>
+                </div>
+
+                <div style={{ border: '1px solid #f1f5f9', padding: 24, borderRadius: 12, backgroundColor: '#f8fafc' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: 'rgba(14, 165, 233, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--info)', marginBottom: 16 }}>
+                    <Repeat size={20} />
+                  </div>
+                  <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>Native Cron Engines</h4>
+                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>Register background tasks using standard UNIX cron expressions. Schedule calculations are parsed dynamically at runtime.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Console Preview Code Section */}
+          <section style={{ padding: '80px 40px', maxWidth: 1000, margin: '0 auto', width: '100%' }}>
+            <h3 style={{ fontFamily: 'var(--font-display)', textAlign: 'center', fontSize: 24, fontWeight: 700, marginBottom: 32 }}>Simple HTTP Trigger APIs</h3>
+            <div style={{ backgroundColor: '#0f172a', padding: 24, borderRadius: 12, border: '1px solid #1e293b', color: '#e2e8f0', fontFamily: 'monospace', fontSize: 13, overflowX: 'auto', boxShadow: 'var(--shadow-lg)' }}>
+              <div style={{ color: '#64748b', marginBottom: 12 }}># Submit an immediate background task via curl</div>
+              <div>curl -X POST http://localhost:4000/api/jobs \</div>
+              <div>  -H <span style={{ color: '#38bdf8' }}>"x-api-key: joblix_live_proj_api_key"</span> \</div>
+              <div>  -H <span style={{ color: '#38bdf8' }}>"Content-Type: application/json"</span> \</div>
+              <div>  -d '<span style={{ color: '#34d399' }}>{"{"} "queueName": "email-queue", "payload": {"{"} "userId": "789" {"}"} {"}"}</span>'</div>
+              <div style={{ color: '#64748b', margin: '16px 0 8px 0' }}># Returns immediate job state acknowledgment</div>
+              <div style={{ color: '#94a3b8' }}>{"{"} "id": "job-d8f99e", "status": "QUEUED", "runAt": "2026-07-04T11:03:00Z" {"}"}</div>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <footer style={{ marginTop: 'auto', padding: 24, textAlign: 'center', borderTop: '1px solid #e2e8f0', backgroundColor: 'white', fontSize: 12, color: 'var(--text-secondary)' }}>
+            Joblix distributed orchestration scheduling engine. MIT Licensed. Created for tech round assessment.
+          </footer>
+        </div>
+      );
+    }
+
     return (
       <div className="auth-container">
         <div className="auth-card">
@@ -384,7 +486,7 @@ export default function App() {
             {authMode === 'register' && (
               <>
                 <div className="form-group">
-                  <label>Full Name Label</label>
+                  <label>Full Name</label>
                   <input className="form-control" type="text" placeholder="John Doe" value={name} onChange={e => setName(e.target.value)} required />
                 </div>
                 <div className="form-group">
@@ -414,6 +516,9 @@ export default function App() {
             <span style={{ color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }} onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}>
               {authMode === 'login' ? 'Sign up' : 'Sign in'}
             </span>
+          </p>
+          <p style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: 'var(--primary)', fontWeight: 600, cursor: 'pointer' }} onClick={() => setAuthMode('landing')}>
+            ← Back to Homepage
           </p>
         </div>
       </div>

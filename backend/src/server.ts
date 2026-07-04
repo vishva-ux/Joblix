@@ -19,6 +19,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.json({ status: 'online', service: 'Joblix API Server', version: '1.0.0' });
+});
+
 const PORT = process.env.PORT || 4000;
 
 // ==========================================
