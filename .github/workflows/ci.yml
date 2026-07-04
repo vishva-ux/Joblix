@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  DATABASE_URL: "file:./dev.db"
+  DATABASE_URL: "file:${{ github.workspace }}/backend/prisma/dev.db"
   JWT_SECRET: "test_secret_key_for_ci_pipeline"
 
 jobs:
