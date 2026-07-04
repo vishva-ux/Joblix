@@ -36,8 +36,8 @@ export default function App() {
 
   // Form states
   const [authMode, setAuthMode] = useState<'login' | 'register' | 'landing'>('landing');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@joblix.com');
+  const [password, setPassword] = useState('admin123');
   const [name, setName] = useState('');
   const [orgName, setOrgName] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
