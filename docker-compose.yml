@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: joblix-backend
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=file:./dev.db
+      - JWT_SECRET=joblix_super_secret_session_key_987654321
+      - PORT=4000
+    volumes:
+      - backend-db:/app/prisma
+
+  worker:
+    build: ./backend
+    container_name: joblix-worker
+    command: npm run start:worker
+    environment:
+      - DATABASE_URL=file:./dev.db
+      - JWT_SECRET=joblix_super_secret_session_key_987654321
+      - CONCURRENCY=4
+    depends_on:
+      - backend
+    volumes:
+      - backend-db:/app/prisma
+
+  frontend:
+    build: ./frontend
+    container_name: joblix-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  backend-db:
