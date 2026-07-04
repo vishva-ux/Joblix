@@ -1,5 +1,7 @@
 FROM node:20-alpine
 
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 COPY package*.json ./
@@ -13,4 +15,4 @@ RUN npm run build
 
 EXPOSE 4000
 
-CMD ["npm", "run", "start:server"]
+CMD ["sh", "-c", "npx prisma db push && npm run start:server"]
